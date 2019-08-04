@@ -12,16 +12,21 @@ TriggerButton := "LButton"
 OverrideButton := "LAlt"
 SafetyButton := "ScrollLock"
 FireModeButton := "NumLock"
+DebugModeButton := "CapsLock"
 
 ~LAlt::
 	Loop {
+		If(GetKeyState(DebugModeButton, "T")) {
+			ToolTip % CalculatedFireDelay
+		} Else {
+			ToolTip
+		}
 		If(GetKeyState(FireModeButton, "T")) {
 			CalculatedFireDelay := MinFireDelay
 		} Else {
 			CalculatedFireDelay := (NominalFireDelay * CurrentFireDelay) + MinFireDelay
 		}
 		If(GetKeyState(OverrideButton, "P") || GetKeyState(SafetyButton, "T")) {
-			ToolTip % CalculatedFireDelay
 			If(GetKeyState(TriggerButton, "P")) {
 				Send, {Click}
 				CurrentFireDelay := CurrentFireDelay * FireDelayCurve
@@ -29,8 +34,6 @@ FireModeButton := "NumLock"
 			} Else {
 				CurrentFireDelay := 1
 			}
-		} Else {
-			ToolTip
 		}
 		Sleep % Clock
 	}
