@@ -1,27 +1,36 @@
 #SingleInstance Force
 #InstallMouseHook
 
-RapidFireDelay:= 50
+Clock := 10
+MaxFireDelay := 300
+MinFireDelay := 15
+NominalFireDelay := MaxFireDelay - MinFireDelay
+CurrentFireDelay := 1
+FireDelayCurve := .8
 
-WheelLeft::
-	RapidFireDelay++
-Return
+TriggerButton := "LButton"
+OverrideButton := "LAlt"
+SafetyButton := "ScrollLock"
+FireModeButton := "NumLock"
 
-WheelRight::
-	If(RapidFireDelay > 0) {
-		RapidFireDelay--
-	}
-Return
-
-LAlt::
+~LAlt::
 	Loop {
-		If(GetKeyState("LAlt", "P")) {
-			ToolTip % RapidFireDelay
-			If(GetKeyState("LButton", "P")) {
+		If(GetKeyState(FireModeButton, "T")) {
+			CalculatedFireDelay := MinFireDelay
+		} Else {
+			CalculatedFireDelay := (NominalFireDelay * CurrentFireDelay) + MinFireDelay
+		}
+		If(GetKeyState(OverrideButton, "P") || GetKeyState(SafetyButton, "T")) {
+			ToolTip % CalculatedFireDelay
+			If(GetKeyState(TriggerButton, "P")) {
 				Send, {Click}
+				CurrentFireDelay := CurrentFireDelay * FireDelayCurve
+				Sleep % CalculatedFireDelay
+			} Else {
+				CurrentFireDelay := 1
 			}
 		} Else {
 			ToolTip
 		}
-		Sleep % RapidFireDelay
+		Sleep % Clock
 	}
